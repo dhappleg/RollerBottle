@@ -25,8 +25,8 @@ void setup() {
   pinMode(9, INPUT); 
   lcd.begin(16, 2);
   lcd.print("Initializing...");
-  EEPROM.write(0,255); 
-  EEPROM.write(1, 1); 
+ // EEPROM.write(0,255); 
+  //EEPROM.write(1, 1); 
 }
 
 void loop() {
