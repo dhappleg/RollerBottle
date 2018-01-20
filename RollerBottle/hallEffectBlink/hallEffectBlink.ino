@@ -15,7 +15,9 @@ unsigned int rpm;
 unsigned long timeOld;
 int lightOn = 0;
 int motorOn = 0;
-int speed = 0; 
+int desiredSpeed = 0; 
+bool speedChanging = false; 
+//Timer t; // timer used for the saving of values to EEPROM
 LiquidCrystal lcd(13, 12, 4, 5, 6, 7);
 
 void setup() {
@@ -25,7 +27,8 @@ void setup() {
   pinMode(9, INPUT); 
   lcd.begin(16, 2);
   lcd.print("Initializing...");
- // EEPROM.write(0,255); 
+  desiredSpeed = EEPROM.read(0); 
+  //EEPROM.write(0,69); 
   //EEPROM.write(1, 1); 
 }
 
@@ -34,21 +37,37 @@ void loop() {
   //Serial.println(digitalRead(9)); 
   //delay(100); 
   if(digitalRead(9) == 1) {
-    writeDisplay((String)++speed); 
-    delay(100); 
+    desiredSpeed++; 
+    updateSpeed(); 
   }
   else {
     if(digitalRead(10) == 1) {
-      writeDisplay(String(--speed)); 
-      delay(100); 
+      desiredSpeed--; 
+      updateSpeed();
     }
   }
+  //t.update();
   /* if (halfRev >= 20) {
       rpm = 30*1000/(millis() - timeOld)*halfRev;
       timeOld = millis();
       halfRev = 0;
       Serial.println(rpm,DEC);
     }*/
+}
+
+void storeValues() {
+  EEPROM.write(0, (uint8_t)desiredSpeed); 
+}
+
+void updateSpeed() {
+ // t.after(1000, storeValues); 
+  speedChanging = true; 
+  lcd.clear(); 
+  lcd.print("Desired RPM"); 
+  lcd.setCursor(0,1); 
+  lcd.print((String) desiredSpeed); 
+  delay(300); 
+  speedChanging = false;
 }
 
 void magnetInterrupt () {
@@ -59,15 +78,17 @@ void magnetInterrupt () {
 }
 
 void writeDisplay(String val) {
-  lcd.clear(); 
-  lcd.print("RPM:"); 
-  lcd.setCursor(5, 0);
-  lcd.print(val);
-  lcd.setCursor(0,1);
-  lcd.print("DEG:"); 
-  lcd.setCursor(5,1); 
-  lcd.print("N/A."); 
-  lcd.print((char)223);
+  if(!speedChanging) {
+    lcd.clear(); 
+    lcd.print("RPM:"); 
+    lcd.setCursor(5, 0);
+    lcd.print(val);
+    lcd.setCursor(0,1);
+    lcd.print("DEG:"); 
+    lcd.setCursor(5,1); 
+    lcd.print("N/A."); 
+    lcd.print((char)223);
+  }
 }
 
 void toggleLight() {
