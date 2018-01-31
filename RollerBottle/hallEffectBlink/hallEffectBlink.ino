@@ -11,6 +11,7 @@
 #include <LiquidCrystal.h>
 
 volatile byte halfRev;
+unsigned long curTime = 0, prevTime = 0, delayTime = 5000; 
 unsigned int rpm;
 unsigned long timeOld;
 int lightOn = 0;
@@ -36,6 +37,7 @@ void loop() {
   // Speed calculations HERE:
   //Serial.println(digitalRead(9)); 
   //delay(100); 
+  pollingLoop(); 
   if(digitalRead(9) == 1) {
     desiredSpeed++; 
     updateSpeed(); 
@@ -55,8 +57,24 @@ void loop() {
     }*/
 }
 
+void pollingLoop(){
+  curTime = millis(); // get time 
+  if((prevTime + delayTime) >= curTime) {
+    prevTime = curTime; 
+    // display the screen for counting
+  }
+  // listen for button press
+  //    reset time on button press 
+
+  // if time > 5sec then change screen back. 
+}
+
 void storeValues() {
+  // Disable interrupts before writing to EEPROM
+  //__disable_interrupt();
   EEPROM.write(0, (uint8_t)desiredSpeed); 
+  //__enable_interrupt();
+  // Enable interrupts after writing to EEPROM According to ATMEGA 328 Docs. 
 }
 
 void updateSpeed() {
