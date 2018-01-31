@@ -12,6 +12,7 @@
 #include <LiquidCrystal.h>
 
 // define inputs for buttons
+#define _HALL_SENSOR_ 1   // on interrupt 1 pin 3
 #define _MODE_  9
 #define _PLUS_  10
 #define _MINUS_ 11
@@ -32,12 +33,15 @@ int desiredTiltAngle =  0;  // no tilt
 int mode = 0; 
 unsigned long lastInputTime = 0; 
 
+int lightOn = 0;
+
 // declare LCD Device
 LiquidCrystal lcd(13, 12, 4, 5, 6, 7);
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200); 
+  Serial.begin(115200);
+  attachInterrupt(_HALL_SENSOR_, magnet_interrupt, FALLING); 
   pinMode(_MODE_, INPUT);
   pinMode(_PLUS_, INPUT); 
   pinMode(_MINUS_, INPUT); 
@@ -56,7 +60,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   polling_lop(); 
-  if( ((millis() - lastInputTime) > 5) && (lastInputTime != 0) ) {
+  if( ((millis() - lastInputTime) > 5000) && (lastInputTime != 0) ) {
     lastInputTime = 0; 
     mode = 0; 
     //store_values(); 
@@ -69,6 +73,24 @@ void loop() {
    */
 }
 
+void toggle_light() {
+  if (lightOn) {
+    digitalWrite(8, LOW);
+   // writeDisplay((String) EEPROM.read(0));
+    lightOn = 0;
+  } else {
+    digitalWrite(8, HIGH);
+    //writeDisplay((String) EEPROM.read(1));
+    lightOn = 1;
+  }
+}
+/*
+ * Speed calculation for rpm of wheels
+ */
+void magnet_interrupt() {
+  toggle_light(); 
+}
+
 /*
  *  Poll the buttons and control the LCD display
  */
@@ -76,7 +98,7 @@ void polling_lop() {
   // listen for mode button 
   if(digitalRead(_MODE_) == 1) {
     lastInputTime = millis(); // set last input
-    if(mode > 5) {
+    if(mode >= 3) {
       mode = 0; 
     }
     mode += 1; 
@@ -100,7 +122,10 @@ void polling_lop() {
         }
         break; 
       case 3: // increasing the desired tilt angle
-        
+        desiredTiltAngle += 1; 
+        if(desiredTiltAngle > _MAX_TILT_ANGLE_) {
+          desiredTiltAngle = _MAX_TILT_ANGLE_; 
+        }
         break;   
     }
   }
@@ -175,5 +200,6 @@ void update_display() {
       lcd.print((char)223); // degree symbol
       break; 
   }
+  delay(300); 
 }
 
