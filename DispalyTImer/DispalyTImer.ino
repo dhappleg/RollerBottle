@@ -30,7 +30,7 @@
 int desiredSpinSpeed = 60; 
 int desiredTiltSpeed =  0;  // start with tilt off
 int desiredTiltAngle =  0;  // no tilt 
-int mode = 0; 
+int mode = 0;  
 unsigned long lastInputTime = 0; 
 
 int lightOn = 0;
@@ -199,7 +199,7 @@ void update_display() {
       lcd.print((String) desiredTiltAngle); 
       lcd.print((char)223); // degree symbol
       break; 
-  }
+  } 
   delay(300); 
 }
 
