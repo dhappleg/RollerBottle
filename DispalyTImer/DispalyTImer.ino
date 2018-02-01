@@ -140,7 +140,18 @@ void polling_lop() {
           desiredSpinSpeed = 0; 
         }
         break; 
-      case 2: 
+      case 2: // decreasing the desired tilt speed
+        desiredTiltSpeed -=1; 
+        if(desiredTiltSpeed < 0) {
+          desiredTiltSpeed = 0; 
+        }
+        break; 
+
+      case 3: // decreasing the desired tilt angle
+        desiredTiltAngle -= 1; 
+        if(desiredTiltAngle < 0) {
+          desiredTiltAngle = 0; 
+        }
         break; 
     }
   }
