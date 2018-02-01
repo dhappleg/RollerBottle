@@ -53,6 +53,7 @@ void setup() {
   /* TODO: 
    * Read from EEPROM the values stored for speeds
    */
+  load_values(); 
    
   delay(1000);  // just for initialization effect.
 }
@@ -63,7 +64,7 @@ void loop() {
   if( ((millis() - lastInputTime) > 5000) && (lastInputTime != 0) ) {
     lastInputTime = 0; 
     mode = 0; 
-    //store_values(); 
+    store_values(); 
   }
 
   update_display(); 
@@ -169,7 +170,7 @@ void store_values() {
 /*
  * Read the values from the EEPROM for speed, angle, and tilt speed
  */
-void read_values() {
+void load_values() {
   desiredSpinSpeed = EEPROM.read(_SPIN_SPEED_MEM_); 
   desiredTiltSpeed = EEPROM.read(_TILE_SPEED_MEM_); 
   desiredTiltAngle = EEPROM.read(_TILE_ANGLE_MEM_); 
