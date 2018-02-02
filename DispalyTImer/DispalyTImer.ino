@@ -1,6 +1,6 @@
 /*
    Author: Drew Applegath
-   Updated: 01/31/2018
+   Updated: 02/01/2018
 
    Michigan Technological University - Undergraduate research
    Dr. Ong - Chem. Eng. Dept. 
@@ -13,9 +13,10 @@
 
 // define inputs for buttons
 #define _HALL_SENSOR_ 1   // on interrupt 1 pin 3
+#define _MOTOR_CONTORLLER_ 11
 #define _MODE_  9
 #define _PLUS_  10
-#define _MINUS_ 11
+#define _MINUS_ 2
 
 #define _SPIN_SPEED_MEM_ 0
 #define _TILE_SPEED_MEM_ 1
@@ -31,6 +32,7 @@ int desiredSpinSpeed = 60;
 int desiredTiltSpeed =  0;  // start with tilt off
 int desiredTiltAngle =  0;  // no tilt 
 int mode = 0;  
+unsigned char motorSpeed = 0; 
 unsigned long lastInputTime = 0; 
 
 int lightOn = 0;
@@ -44,7 +46,8 @@ void setup() {
   attachInterrupt(_HALL_SENSOR_, magnet_interrupt, FALLING); 
   pinMode(_MODE_, INPUT);
   pinMode(_PLUS_, INPUT); 
-  pinMode(_MINUS_, INPUT); 
+  pinMode(_MINUS_, INPUT);
+  pinMode(11, OUTPUT);  
 
   // setup display for output/clear it
   lcd.begin(16, 2); 
@@ -68,12 +71,25 @@ void loop() {
   }
 
   update_display(); 
+  update_motor(); 
   /*
    * Display the current mode 
    *  Mode 0 is the running values
    */
 }
 
+/*
+ * update motor speed
+ */
+void update_motor() {
+  TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
+  TCCR2B = _BV(CS22);
+  OCR2A = motorSpeed++;
+}
+
+/*
+ * Blink the light attached to pin 8. 
+ */
 void toggle_light() {
   if (lightOn) {
     digitalWrite(8, LOW);
@@ -85,6 +101,7 @@ void toggle_light() {
     lightOn = 1;
   }
 }
+
 /*
  * Speed calculation for rpm of wheels
  */
