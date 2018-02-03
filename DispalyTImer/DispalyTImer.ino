@@ -84,7 +84,7 @@ void loop() {
 void update_motor() {
   TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
   TCCR2B = _BV(CS22);
-  OCR2A = motorSpeed++;
+  OCR2A = desiredTiltSpeed;
 }
 
 /*
