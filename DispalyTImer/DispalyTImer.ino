@@ -34,6 +34,8 @@ int desiredTiltAngle =  0;  // no tilt
 int mode = 0;  
 unsigned char motorSpeed = 0; 
 unsigned long lastInputTime = 0; 
+int previousPlus = 0; 
+int previousMinus = 0; 
 
 int lightOn = 0;
 
@@ -124,10 +126,15 @@ void polling_lop() {
 
   // listen for increase button 
   if(digitalRead(_PLUS_) == 1) {
+    previousPlus++; 
     lastInputTime = millis(); // set last input
     switch(mode) {
       case 1: // increase the desired spin speed 
-        desiredSpinSpeed += 1; 
+        if(previousPlus >= 5) {
+          desiredSpinSpeed += 10; 
+        } else {
+           desiredSpinSpeed += 1; 
+        }
         if (desiredSpinSpeed >= _MAX_SPIN_SPEED_) {
           desiredSpinSpeed = _MAX_SPIN_SPEED_; 
         }
@@ -146,14 +153,21 @@ void polling_lop() {
         }
         break;   
     }
+  } else {
+    previousPlus = 0;
   }
 
   // listen for decrease button 
   if(digitalRead(_MINUS_) == 1) {
+    previousMinus++; 
     lastInputTime = millis(); // set last input
     switch(mode) {
       case 1: // set spin speed
-        desiredSpinSpeed -= 1; 
+        if (previousMinus >= 5) {
+          desiredSpinSpeed -=10; 
+        } else {
+          desiredSpinSpeed -= 1; 
+        }
         if(desiredSpinSpeed < 0) {
           desiredSpinSpeed = 0; 
         }
@@ -172,6 +186,8 @@ void polling_lop() {
         }
         break; 
     }
+  } else {
+    previousMinus = 0; 
   }
 }
 
@@ -229,6 +245,6 @@ void update_display() {
       lcd.print((char)223); // degree symbol
       break; 
   } 
-  delay(300); 
+  delay(270); 
 }
 
