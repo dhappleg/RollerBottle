@@ -1,6 +1,6 @@
 /*
    Author: Drew Applegath
-   Updated: 02/01/2018
+   Updated: 02/25/2018
 
    Michigan Technological University - Undergraduate research
    Dr. Ong - Chem. Eng. Dept. 
@@ -118,7 +118,7 @@ void polling_lop() {
   // listen for mode button 
   if(digitalRead(_MODE_) == 1) {
     lastInputTime = millis(); // set last input
-    if(mode >= 3) {
+    if(mode >= 1) {
       mode = 0; 
     }
     mode += 1; 
@@ -140,18 +140,18 @@ void polling_lop() {
         }
         break;
         
-      case 2: // increasing the desired tilt speed
-        desiredTiltSpeed += 1; 
-        if(desiredTiltSpeed > _MAX_TILT_SPEED_) {
-          desiredTiltSpeed = _MAX_TILT_SPEED_;
-        }
-        break; 
-      case 3: // increasing the desired tilt angle
-        desiredTiltAngle += 1; 
-        if(desiredTiltAngle > _MAX_TILT_ANGLE_) {
-          desiredTiltAngle = _MAX_TILT_ANGLE_; 
-        }
-        break;   
+//      case 2: // increasing the desired tilt speed
+//        desiredTiltSpeed += 1; 
+//        if(desiredTiltSpeed > _MAX_TILT_SPEED_) {
+//          desiredTiltSpeed = _MAX_TILT_SPEED_;
+//        }
+//        break; 
+//      case 3: // increasing the desired tilt angle
+//        desiredTiltAngle += 1; 
+//        if(desiredTiltAngle > _MAX_TILT_ANGLE_) {
+//          desiredTiltAngle = _MAX_TILT_ANGLE_; 
+//        }
+//        break;   
     }
   } else {
     previousPlus = 0;
@@ -172,19 +172,19 @@ void polling_lop() {
           desiredSpinSpeed = 0; 
         }
         break; 
-      case 2: // decreasing the desired tilt speed
-        desiredTiltSpeed -=1; 
-        if(desiredTiltSpeed < 0) {
-          desiredTiltSpeed = 0; 
-        }
-        break; 
-
-      case 3: // decreasing the desired tilt angle
-        desiredTiltAngle -= 1; 
-        if(desiredTiltAngle < 0) {
-          desiredTiltAngle = 0; 
-        }
-        break; 
+//      case 2: // decreasing the desired tilt speed
+//        desiredTiltSpeed -=1; 
+//        if(desiredTiltSpeed < 0) {
+//          desiredTiltSpeed = 0; 
+//        }
+//        break; 
+//
+//      case 3: // decreasing the desired tilt angle
+//        desiredTiltAngle -= 1; 
+//        if(desiredTiltAngle < 0) {
+//          desiredTiltAngle = 0; 
+//        }
+//        break; 
     }
   } else {
     previousMinus = 0; 
@@ -232,18 +232,18 @@ void update_display() {
       lcd.print((String) desiredSpinSpeed);
       break; 
     
-    case 2: // update tilt speed mode
-      lcd.print("Desired Tilt CPM"); 
-      lcd.setCursor(0,1); 
-      lcd.print((String) desiredTiltSpeed); 
-      break; 
-   
-    case 3: // update tilt angle
-      lcd.print("Desired Tilt Angle"); 
-      lcd.setCursor(0,1);
-      lcd.print((String) desiredTiltAngle); 
-      lcd.print((char)223); // degree symbol
-      break; 
+//    case 2: // update tilt speed mode
+//      lcd.print("Desired Tilt CPM"); 
+//      lcd.setCursor(0,1); 
+//      lcd.print((String) desiredTiltSpeed); 
+//      break; 
+//   
+//    case 3: // update tilt angle
+//      lcd.print("Desired Tilt Angle"); 
+//      lcd.setCursor(0,1);
+//      lcd.print((String) desiredTiltAngle); 
+//      lcd.print((char)223); // degree symbol
+//      break; 
   } 
   delay(270); 
 }
