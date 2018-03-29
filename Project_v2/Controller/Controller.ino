@@ -49,7 +49,8 @@ void setup() {
   pinMode(_MODE_, INPUT);
   pinMode(_PLUS_, INPUT); 
   pinMode(_MINUS_, INPUT);
-  pinMode(11, OUTPUT);  
+  pinMode(11, OUTPUT); 
+  pinMode(3, OUTPUT); 
 
   // setup display for output/clear it
   lcd.begin(16, 2); 
@@ -78,6 +79,7 @@ void loop() {
    * Display the current mode 
    *  Mode 0 is the running values
    */
+  analogWrite(3, 255); 
 }
 
 /*
@@ -87,6 +89,7 @@ void update_motor() {
   TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
   TCCR2B = _BV(CS22);
   OCR2A = desiredTiltSpeed;
+  
 }
 
 /*
