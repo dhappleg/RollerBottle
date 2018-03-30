@@ -14,7 +14,7 @@
 // define inputs for buttons
 #define _HALL_SENSOR_ 1   // on interrupt 1 pin 3
 #define _MOTOR_CONTORLLER_ 11
-#define _MODE_  9
+#define _MODE_  8
 #define _PLUS_  10
 #define _MINUS_ 2
 
@@ -50,7 +50,7 @@ void setup() {
   pinMode(_PLUS_, INPUT); 
   pinMode(_MINUS_, INPUT);
   pinMode(11, OUTPUT); 
-  pinMode(3, OUTPUT); 
+  pinMode(9, OUTPUT); 
 
   // setup display for output/clear it
   lcd.begin(16, 2); 
@@ -79,7 +79,10 @@ void loop() {
    * Display the current mode 
    *  Mode 0 is the running values
    */
-  analogWrite(3, 255); 
+ // delay(1);
+  analogWrite(9, 100); 
+  //delay(50);
+  //analogWrite(9, 0);
 }
 
 /*
@@ -111,7 +114,7 @@ void toggle_light() {
  * Speed calculation for rpm of wheels
  */
 void magnet_interrupt() {
-  toggle_light(); 
+  //toggle_light(); 
 }
 
 /*
