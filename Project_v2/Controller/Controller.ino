@@ -27,7 +27,7 @@
 #define _MAX_TILT_ANGLE_ 10 
 
 
-
+int i = 100;
 int desiredSpinSpeed = 60; 
 int desiredTiltSpeed =  0;  // start with tilt off
 int desiredTiltAngle =  0;  // no tilt 
@@ -80,6 +80,11 @@ void loop() {
    *  Mode 0 is the running values
    */
  // delay(1);
+ if(i >= 250) {
+  i = 100; 
+ } else {
+  i = i +1;
+ }
   analogWrite(9, 100); 
   //delay(50);
   //analogWrite(9, 0);
