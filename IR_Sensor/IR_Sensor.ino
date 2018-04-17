@@ -1,12 +1,22 @@
 #include <LiquidCrystal.h>
 
 #define _HALL_SENSOR_ 0   // on interrupt 1 pin 3
+#define _MODE_  9
+#define _PLUS_  10
+#define _MINUS_ 11
+#define _MAX_SPIN_SPEED_ 120
 
 // used for blinking the LED on pin 13
 int ledOn = 0;  
 volatile byte rpmCount;
 unsigned int rpm = 0; 
 int mode = 0;
+int oldDispTime = 0; 
+unsigned long lastInputTime = 0; 
+int previousPlus = 0; 
+int previousMinus = 0;
+int desiredSpinSpeed = 60;  
+int mappedRPM = 1000; 
 unsigned long timeOld; 
 
 // declare LCD Device
@@ -18,8 +28,11 @@ void setup() {
   // setup display for output/clear it
   lcd.begin(16, 2); 
   lcd.print("Initializing...");
-  
+  pinMode(8, OUTPUT); 
   pinMode(LED_BUILTIN, OUTPUT); 
+  pinMode(_MODE_, INPUT);
+  pinMode(_PLUS_, INPUT); 
+  pinMode(_MINUS_, INPUT);
   attachInterrupt(_HALL_SENSOR_, irInterrupt, FALLING);
   rpm = 0; 
   timeOld = 0; 
@@ -29,7 +42,19 @@ void setup() {
 
 void loop() { 
   rpmCalculation();
-  update_display(); 
+  pollingLoop(); 
+  if( ((millis() - lastInputTime) > 5000) && (lastInputTime != 0) ) {
+    lastInputTime = 0; 
+    mode = 0;  
+  }
+  if(oldDispTime > 2000) {
+    oldDispTime = 0;   
+    update_display();
+  } 
+  digitalWrite(8, HIGH); 
+  delayMicroseconds(90); 
+  digitalWrite(8, LOW);
+  oldDispTime++; 
 }
 
 void rpmCalculation() {
@@ -48,6 +73,88 @@ void irInterrupt() {
 void toggleOnBoardLED() {
   (ledOn == 1) ? digitalWrite(LED_BUILTIN, HIGH) : digitalWrite(LED_BUILTIN, LOW); 
   (ledOn == 1) ? ledOn = 0 : ledOn = 1; 
+}
+
+/*
+ *  Poll the buttons and control the LCD display
+ */
+void pollingLoop() {
+  // listen for mode button 
+  if( (millis() - lastInputTime) > 470) {
+  if(digitalRead(_MODE_) == 1) {
+    lastInputTime = millis(); // set last input
+    if(mode >= 1) {
+      mode = 0; 
+    }
+    mode += 1; 
+  }
+
+  // listen for increase button 
+  if(digitalRead(_PLUS_) == 1) {
+    previousPlus++; 
+    lastInputTime = millis(); // set last input
+    switch(mode) {
+      case 1: // increase the desired spin speed 
+        if(previousPlus >= 5) {
+          desiredSpinSpeed += 10; 
+        } else {
+           desiredSpinSpeed += 1; 
+        }
+        if (desiredSpinSpeed >= _MAX_SPIN_SPEED_) {
+          desiredSpinSpeed = _MAX_SPIN_SPEED_; 
+        }
+        break;
+        
+//      case 2: // increasing the desired tilt speed
+//        desiredTiltSpeed += 1; 
+//        if(desiredTiltSpeed > _MAX_TILT_SPEED_) {
+//          desiredTiltSpeed = _MAX_TILT_SPEED_;
+//        }
+//        break; 
+//      case 3: // increasing the desired tilt angle
+//        desiredTiltAngle += 1; 
+//        if(desiredTiltAngle > _MAX_TILT_ANGLE_) {
+//          desiredTiltAngle = _MAX_TILT_ANGLE_; 
+//        }
+//        break;   
+    }
+  } else {
+    previousPlus = 0;
+  }
+
+  // listen for decrease button 
+  if(digitalRead(_MINUS_) == 1) {
+    previousMinus++; 
+    lastInputTime = millis(); // set last input
+    switch(mode) {
+      case 1: // set spin speed
+        if (previousMinus >= 5) {
+          desiredSpinSpeed -=10; 
+        } else {
+          desiredSpinSpeed -= 1; 
+        }
+        if(desiredSpinSpeed < 0) {
+          desiredSpinSpeed = 0; 
+        }
+        break; 
+//      case 2: // decreasing the desired tilt speed
+//        desiredTiltSpeed -=1; 
+//        if(desiredTiltSpeed < 0) {
+//          desiredTiltSpeed = 0; 
+//        }
+//        break; 
+//
+//      case 3: // decreasing the desired tilt angle
+//        desiredTiltAngle -= 1; 
+//        if(desiredTiltAngle < 0) {
+//          desiredTiltAngle = 0; 
+//        }
+//        break; 
+    }
+  } else {
+    previousMinus = 0; 
+  }
+  }
 }
 
 /*
@@ -70,7 +177,7 @@ void update_display() {
     case 1: // update speed mode
       lcd.print("Desired RPM"); 
       lcd.setCursor(0,1); 
-      lcd.print((String) rpm);
+      lcd.print((String) desiredSpinSpeed);
       break; 
     
 //    case 2: // update tilt speed mode
@@ -86,6 +193,6 @@ void update_display() {
 //      lcd.print((char)223); // degree symbol
 //      break; 
   } 
-  delay(470); 
+  //delay(470); 
 }
 
