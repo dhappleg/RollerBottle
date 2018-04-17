@@ -16,8 +16,9 @@ unsigned long lastInputTime = 0;
 int previousPlus = 0; 
 int previousMinus = 0;
 int desiredSpinSpeed = 60;  
-int mappedRPM = 1000; 
+int mappedRPM = 6; 
 unsigned long timeOld; 
+int loopCounter = 0; 
 
 // declare LCD Device
 LiquidCrystal lcd(13, 12, 4, 5, 6, 7);
@@ -51,9 +52,23 @@ void loop() {
     oldDispTime = 0;   
     update_display();
   } 
+
   digitalWrite(8, HIGH); 
   delayMicroseconds(90); 
-  digitalWrite(8, LOW);
+  digitalWrite(8, LOW); 
+  /*mappedRPM = desiredSpinSpeed;
+
+  if(loopCounter <= 1) {
+    digitalWrite(8, HIGH); 
+  } else {
+    if(loopCounter > mappedRPM) {
+      digitalWrite(8, LOW);
+      loopCounter = 0; 
+    }
+  } 
+  loopCounter++; */
+  //delayMicroseconds(90); 
+  
   oldDispTime++; 
 }
 
