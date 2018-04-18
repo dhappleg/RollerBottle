@@ -20,8 +20,33 @@ int mappedRPM = 6;
 unsigned long timeOld; 
 int loopCounter = 0; 
 
+
 // declare LCD Device
 LiquidCrystal lcd(13, 12, 4, 5, 6, 7);
+
+/*
+ * used for the stepper motor
+ */
+void enableTimer() {
+  noInterrupts(); 
+  TCCR0A = 0;// set entire TCCR0A register to 0
+  TCCR0B = 0;// same for TCCR0B
+  TCNT0  = 0;//initialize counter value to 0
+  // set compare match register for 2khz increments
+  OCR0A = 124;// = (16*10^6) / (2000*64) - 1 (must be <256)
+  // turn on CTC mode
+  TCCR0A |= (1 << WGM01);
+  // Set CS01 and CS00 bits for 64 prescaler
+  TCCR0B |= (1 << CS01) | (1 << CS00);   
+  // enable timer compare interrupt
+  TIMSK0 |= (1 << OCIE0A);
+  interrupts(); 
+}
+
+ISR(TIMER0_COMPA_vect) { 
+  digitalWrite(8, HIGH); 
+  digitalWrite(8, LOW); 
+}
 
 void setup() {
   Serial.begin(115200);
@@ -34,6 +59,7 @@ void setup() {
   pinMode(_MODE_, INPUT);
   pinMode(_PLUS_, INPUT); 
   pinMode(_MINUS_, INPUT);
+  enableTimer(); 
   attachInterrupt(_HALL_SENSOR_, irInterrupt, FALLING);
   rpm = 0; 
   timeOld = 0; 
@@ -53,9 +79,13 @@ void loop() {
     update_display();
   } 
 
-  digitalWrite(8, HIGH); 
-  delayMicroseconds(90); 
-  digitalWrite(8, LOW); 
+  //if(loopCounter > 9) {
+    //loopCounter = 0;
+    //digitalWrite(8, HIGH); 
+   // delayMicroseconds(10); 
+  //delayMicroseconds(90); 
+   // digitalWrite(8, LOW); 
+  //}
   /*mappedRPM = desiredSpinSpeed;
 
   if(loopCounter <= 1) {
@@ -68,7 +98,7 @@ void loop() {
   } 
   loopCounter++; */
   //delayMicroseconds(90); 
-  
+  loopCounter++; 
   oldDispTime++; 
 }
 
