@@ -32,7 +32,7 @@ int oldDispTime = 0;
 ISR(TIMER1_COMPA_vect) { 
   digitalWrite(_STEP_, HIGH); 
   digitalWrite(_STEP_, LOW); 
-  OCR1A = 10;  
+  OCR1A = 2*desiredSpinSpeed;  
 }
 
 /*
@@ -112,19 +112,23 @@ void update_display() {
   switch(mode) {
     case 0: // running/sensing mode
       lcd.print("RPM:"); 
-      lcd.setCursor(5, 0);
+      lcd.setCursor(5,0);
       lcd.print((String) rpm);
-      lcd.setCursor(0,1);
+      /*lcd.setCursor(0,1);
       lcd.print("DEG:"); 
       lcd.setCursor(5,1); 
       lcd.print("--.-"); 
       lcd.print((char)223); // degree symbol
+      */
       break;
    
     case 1: // update speed mode
-      lcd.print("Desired RPM"); 
+      lcd.setCursor(1,0); 
+      lcd.print("Desired Speed"); 
       lcd.setCursor(0,1); 
       lcd.print((String) desiredSpinSpeed);
+      lcd.setCursor(5,1); 
+      lcd.print("(RPM)"); 
       break; 
   } 
 }
