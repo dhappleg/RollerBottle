@@ -13,15 +13,15 @@
 #define _MAX_SPIN_SPEED_ 120
 
 // declare LCD Device
-//LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
-LiquidCrystal lcd(8, 12, 4, 5, 6, 7);
+LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
+//LiquidCrystal lcd(8, 12, 4, 5, 6, 7);
 
 // declare global variables 
 unsigned int rpm, rpmCount = 0; // speed calculations
 unsigned long lastInputTime = 0; // used to keep button presses to a min
 int previousPlus = 0; 
 int previousMinus = 0;
-int desiredSpinSpeed = 60; 
+int desiredSpinSpeed =4; 
 int mode = 0; // used for display
 int loopCounter = 0; // used for delay
 unsigned long timeOld; 
@@ -179,7 +179,7 @@ void setup() {
 
   // enable and setup interrupts on timers and tachometer
   timerSetup();
-  attachInterrupt(_IR_SENSOR_, irInterrupt, RISING); 
+  //attachInterrupt(_IR_SENSOR_, irInterrupt, RISING); 
 
   // for visual effect
   delay(1000); 
@@ -189,7 +189,7 @@ void setup() {
  * Loop the program, used for polling the buttons
  */
 void loop() { 
-  rpmCalculation();
+  //rpmCalculation();
   //pollingLoop();
   if( ((millis() - lastInputTime) > 5000) && (lastInputTime != 0) ) {
     lastInputTime = 0; 

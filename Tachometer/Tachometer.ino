@@ -27,9 +27,8 @@ unsigned long timeold;
 // include the library code:
 #include <LiquidCrystal.h>
 // initialize the library with the numbers of the interface pins
-//LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
-LiquidCrystal lcd(8, 12, 4, 5, 6, 7); 
-//LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
+//LiquidCrystal lcd(9, 12, 4, 5, 6, 7); 
+LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
 
 void rpm_fun()
  {
