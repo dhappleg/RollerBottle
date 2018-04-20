@@ -13,7 +13,8 @@
 #define _MAX_SPIN_SPEED_ 120
 
 // declare LCD Device
-LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
+//LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
+LiquidCrystal lcd(8, 12, 4, 5, 6, 7);
 
 // declare global variables 
 unsigned int rpm, rpmCount = 0; // speed calculations
@@ -44,11 +45,14 @@ void irInterrupt() {
 }
 
 void rpmCalculation() {
-  detachInterrupt(_IR_SENSOR_); 
+  noInterrupts(); 
+  //detachInterrupt(_IR_SENSOR_); 
   rpm = 30*1000/(millis() - timeOld) * rpmCount;
   timeOld = millis(); 
   rpmCount = 0;
-  attachInterrupt(_IR_SENSOR_, irInterrupt, RISING);
+  //toggleOnBoardLED(); 
+  interrupts(); 
+  //attachInterrupt(_IR_SENSOR_, irInterrupt, RISING);
 }
 
 void pollingLoop() {
@@ -151,6 +155,7 @@ void timerSetup() {
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
   interrupts(); 
+  //attachInterrupt(_IR_SENSOR_, irInterrupt, RISING); 
 }
 
 /*
@@ -174,7 +179,7 @@ void setup() {
 
   // enable and setup interrupts on timers and tachometer
   timerSetup();
-  attachInterrupt(_IR_SENSOR_, irInterrupt, FALLING); 
+  attachInterrupt(_IR_SENSOR_, irInterrupt, RISING); 
 
   // for visual effect
   delay(1000); 
@@ -185,7 +190,7 @@ void setup() {
  */
 void loop() { 
   rpmCalculation();
-  pollingLoop();
+  //pollingLoop();
   if( ((millis() - lastInputTime) > 5000) && (lastInputTime != 0) ) {
     lastInputTime = 0; 
     mode = 0;  

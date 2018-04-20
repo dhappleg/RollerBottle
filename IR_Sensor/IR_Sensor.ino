@@ -59,7 +59,7 @@ void setup() {
   pinMode(_MODE_, INPUT);
   pinMode(_PLUS_, INPUT); 
   pinMode(_MINUS_, INPUT);
-  enableTimer(); 
+  //enableTimer(); 
   attachInterrupt(_HALL_SENSOR_, irInterrupt, FALLING);
   rpm = 0; 
   timeOld = 0; 
@@ -107,7 +107,7 @@ void rpmCalculation() {
   rpm = 30*1000/(millis() - timeOld) * rpmCount;
   timeOld = millis(); 
   rpmCount = 0;
-  attachInterrupt(_HALL_SENSOR_, irInterrupt, RISING);
+  attachInterrupt(_HALL_SENSOR_, irInterrupt, FALLING);
 }
 
 void irInterrupt() {
