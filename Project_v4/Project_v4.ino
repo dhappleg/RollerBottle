@@ -17,7 +17,7 @@
 LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
 
 int mode, previousPlus, previousMinus = 0; 
-int desiredSpeed = 6; 
+int desiredSpeed = 60; 
 unsigned int rpm, rpmCount, loopCount = 0; 
 unsigned long timeOld, lastInput = 0; 
 
@@ -60,7 +60,9 @@ void loop() {
 ISR(TIMER1_COMPA_vect) { 
   digitalWrite(_STEP_, HIGH); 
   digitalWrite(_STEP_, LOW); 
-  OCR1A = 2*desiredSpeed;  
+  //OCR1A = 2*desiredSpeed;  
+  //OCR1A = desiredSpeed;
+  OCR1A = 624; 
 }
 
 void ir_ISR() {
@@ -78,11 +80,14 @@ void init_timer() {
   TCCR1B = 0;// same for TCCR1B
   TCNT1  = 0;//initialize counter value to 0
   // set compare match register for 1hz increments
-  OCR1A = 200;// = (16*10^6) / (1*1024) - 1 (must be <65536)
+  OCR1A = 624;// = (16*10^6) / (1*1024) - 1 (must be <65536)
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
+  TCCR1B |= (0 << WGM11); // set 16 bit
+  TCCR1B |= (0 << WGM10); // set 16 bit
   // Set CS10 and CS12 bits for 1024 prescaler
-  TCCR1B |= (1 << CS12) ;//| (1 << CS10);  
+ // TCCR1B |= (1 << CS12) ;//| (1 << CS10); 
+  TCCR1B |= B00000010;  
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
   //attachInterrupt(_IR_SENSOR_, ir_ISR, RISING); 
@@ -92,7 +97,7 @@ void init_timer() {
 
 void calculate_rpm() {
   noInterrupts(); 
-  rpm = (((60/8)*1000)/(millis() - timeOld))* rpmCount ;//( ((rpmCount/8)/(millis() - timeOld) )/60000);//30 * 1000 / (millis() - timeOld) * rpmCount;
+  rpm = (((60/4)*1000)/(millis() - timeOld))* rpmCount ;//( ((rpmCount/8)/(millis() - timeOld) )/60000);//30 * 1000 / (millis() - timeOld) * rpmCount;
   //rpm = rpmCount; 
   timeOld = millis(); 
   rpmCount = 0; 
