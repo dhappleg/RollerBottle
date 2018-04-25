@@ -4,6 +4,7 @@
  */
  
 #include <LiquidCrystal.h>
+#include <EEPROM.h>
 
 #define _IR_SENSOR_ 0
 #define _STEP_ 8
@@ -28,7 +29,7 @@ void setup() {
   //pinMode(_MODE_, INPUT);
   //pinMode(_PLUS_, INPUT); 
   //pinMode(_MINUS_, INPUT);
-    
+  desiredSpeed = EEPROM.read(0);   
   attachInterrupt(_IR_SENSOR_, ir_ISR, RISING); 
   init_timer(); 
   
@@ -40,6 +41,7 @@ void loop() {
   if( ((millis() - lastInput) > 5000) && (lastInput != 0) ) {
     lastInput = 0; 
     mode = 0;  
+    EEPROM.write(0, desiredSpeed); 
   }
   // calculate every second
   if( ((millis() - timeOld) > 3000) && rpmCount >= 1) {
@@ -62,7 +64,22 @@ ISR(TIMER1_COMPA_vect) {
   digitalWrite(_STEP_, LOW); 
   //OCR1A = 2*desiredSpeed;  
   //OCR1A = desiredSpeed;
-  OCR1A = 624; 
+  //OCR1A = 624;
+  
+  if(desiredSpeed > 60) {
+    //OCR1A = (625/60) *(desiredSpeed - (desiredSpeed % 60));
+    OCR1A = (625/60) * (60-(abs(60-desiredSpeed)));
+  }
+  else {
+    OCR1A = (625/60) * (60+(abs(60-desiredSpeed)));
+  }
+  /*else if (desiredSpeed < 60) {
+    OCR1A = (625/60) *(desiredSpeed + (desiredSpeed %60))
+  }*/
+  /*else {
+    OCR1A = (625/60) * (120-desiredSpeed); // 16E6/(100*256)   clk/( (steps/2)*pre)  
+  }*/
+  //OCR1A = (625/60) * desiredSpeed; // 16E6/(100*256)   clk/( (steps/2)*pre)  
 }
 
 void ir_ISR() {
@@ -80,7 +97,8 @@ void init_timer() {
   TCCR1B = 0;// same for TCCR1B
   TCNT1  = 0;//initialize counter value to 0
   // set compare match register for 1hz increments
-  OCR1A = 624;// = (16*10^6) / (1*1024) - 1 (must be <65536)
+  //OCR1A = 624;// = (16*10^6) / (1*1024) - 1 (must be <65536)
+  OCR1A = (625/60) * desiredSpeed;
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
   TCCR1B |= (0 << WGM11); // set 16 bit
@@ -114,7 +132,8 @@ void update_display() {
     case 0: // running/sensing mode
       lcd.print("RPM:"); 
       lcd.setCursor(5,0);
-      lcd.print((String) rpm);
+      //lcd.print((String) rpm);
+      lcd.print((String) desiredSpeed); 
       break;
     case 1: // update speed mode
       lcd.setCursor(1,0); 
