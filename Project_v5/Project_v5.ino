@@ -152,53 +152,55 @@ void update_display() {
  * 5 depressed values in a row. 
  */
 void poll_input() {
-  if( (millis() - lastInput) > 470) {
-  // listen for mode button
-  if(digitalRead(_MODE_) == 1) {
-    lastInput = millis(); // set last input
-    if(mode >= 1) {
-      mode = 0; 
-    }
-    mode += 1; 
-  }
 
-  // listen for increase button 
-  if(digitalRead(_PLUS_) == 1) {
-    previousPlus++; 
-    lastInput = millis(); // set last input
-    switch(mode) {
-      case 1: // increase the desired spin speed 
-        if(previousPlus >= 5) {
-          desiredSpeed += 10; 
-        } else {
-           desiredSpeed += 1; 
-        }
-        if (desiredSpeed >= _MAX_SPEED_) {
-          desiredSpeed = _MAX_SPEED_; 
-        }
-        break;  
+  // Check for input every half second
+  if( (millis() - lastInput) > 470) {
+    // listen for mode button
+    if(digitalRead(_MODE_) == 1) {
+      lastInput = millis(); // set last input
+      if(mode >= 1) {
+        mode = 0; 
+      }
+      mode += 1; 
     }
-  } else {
-    previousPlus = 0;
-  }
-  // listen for decrease button 
-  if(digitalRead(_MINUS_) == 1) {
-    previousMinus++; 
-    lastInput = millis(); // set last input
-    switch(mode) {
-      case 1: // set spin speed
-        if (previousMinus >= 5) {
-          desiredSpeed -=10; 
-        } else {
-          desiredSpeed -= 1; 
-        }
-        if(desiredSpeed < 0) {
-          desiredSpeed = 0; 
-        }
-        break;  
+
+    // listen for increase button 
+    if(digitalRead(_PLUS_) == 1) {
+      previousPlus++; 
+      lastInput = millis(); // set last input
+      switch(mode) {
+        case 1: // increase the desired spin speed 
+          if(previousPlus >= 5) {
+            desiredSpeed += 10; 
+          } else {
+             desiredSpeed += 1; 
+          }
+          if (desiredSpeed >= _MAX_SPEED_) {
+            desiredSpeed = _MAX_SPEED_; 
+          }
+          break;  
+      }
+    } else {
+      previousPlus = 0;
     }
-  } else {
-    previousMinus = 0; 
-  }
+    // listen for decrease button 
+    if(digitalRead(_MINUS_) == 1) {
+      previousMinus++; 
+      lastInput = millis(); // set last input
+      switch(mode) {
+        case 1: // set spin speed
+          if (previousMinus >= 5) {
+            desiredSpeed -=10; 
+          } else {
+            desiredSpeed -= 1; 
+          }
+          if(desiredSpeed < 0) {
+            desiredSpeed = 0; 
+          }
+          break;  
+      }
+    } else {
+      previousMinus = 0; 
+    }
   }
 }
