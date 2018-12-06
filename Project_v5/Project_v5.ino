@@ -4,40 +4,71 @@
  * Updated: 12/05/2018
  */
  
+// Add libraries for EEPROM and LCD Display 
 #include <LiquidCrystal.h>
 #include <EEPROM.h>
 
+// define globaly used variable for pins and setting 
+// speed values. 
 #define _STEP_ 8
 #define _MODE_  9
 #define _PLUS_  10
 #define _MINUS_ 11
-
 #define _MAX_SPEED_ 120
 
+// Declare lcd display and pinout
 LiquidCrystal lcd(13, 12, 4, 5, 6, 7); 
 
+/*
+ * initialize and declare variables
+ * 
+ * mode          - [Functionality removed] Tracks current operating mode
+ *                  for lcd user input. 
+ * previousPlus  - Stores user input for "plus" button
+ * previousMinus - Stores user input for "minus" button
+ * loopCount     - Used for non delayed timing calculations (clk counter)
+ * lastInput     - Tracks user input for +/- 10 operation
+ * desiredSpeed  - Default desired speed to 1 rpm for new devices
+ */
 int mode, previousPlus, previousMinus = 0; 
-int desiredSpeed = 60; 
-int orcaVal = 0; 
-int scalor = 1; 
-unsigned int rpm, rpmCount, loopCount = 0; 
-unsigned long timeOld, lastInput = 0; 
+unsigned int loopCount = 0; 
+unsigned long lastInput = 0; 
+int desiredSpeed = 60;
 
+/*
+ * Define and initialize values and timers.
+ */
 void setup() {
+  // setup and start the lcd display
   lcd.begin(16, 2); 
   lcd.print("Initializing...");
+
+  // declare inputs and outputs for buttons and stepper motor
   pinMode(_STEP_, OUTPUT); 
   pinMode(_MODE_, INPUT);
   pinMode(_PLUS_, INPUT); 
   pinMode(_MINUS_, INPUT);
-  desiredSpeed = EEPROM.read(0);    
+
+  // get data from EEPROM, mod 120 to make sure other values 
+  // stored from previous uses arent accidently passed to 
+  // speed calculation
+  desiredSpeed = (EEPROM.read(0)) % 120;  
+
+  // call to set timer values for stepper control  
   init_timer(); 
   
+  // delay for user effect
   delay(1000); 
 }
 
+/* 
+ * Iteratively check the inputs for change and update 
+ * desired speed depending on the input. 
+ */
 void loop() {
+  // check the buttons for user input
   poll_input(); 
+
   // Calculate display update and look for new input
   if( ((millis() - lastInput) > 5000) && (lastInput != 0) ) {
     lastInput = 0; 
@@ -51,10 +82,12 @@ void loop() {
     }
   }
 
+  // update the display every second
   if(loopCount > 14000) {
     loopCount = 0; 
     update_display();
   } 
+  // update non delay time values
   loopCount++; 
 }
 
@@ -68,8 +101,9 @@ ISR(TIMER1_COMPA_vect) {
   digitalWrite(_STEP_, LOW);   
   OCR1A = 4686 / desiredSpeed; // calculated step per rpm/desired rpm
 }
+
 /*
- * 
+ * Sets the inrnal timer 1 to 16bit and the pre-scalor value to 1024.  
  */
 void init_timer() {
   noInterrupts(); 
@@ -112,6 +146,11 @@ void update_display() {
   } 
 }
 
+/* 
+ * Check for input pins to have a high value and determine if the
+ * button press meets the requirements for incrememting by 10 after
+ * 5 depressed values in a row. 
+ */
 void poll_input() {
   if( (millis() - lastInput) > 470) {
   // listen for mode button
